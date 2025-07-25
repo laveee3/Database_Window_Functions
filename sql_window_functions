@@ -1,0 +1,136 @@
+# Nested CTE table
+# https://www.youtube.com/watch?v=sWGJWqpuQ1Q
+
+Find second highest salary
+SELECT MAX(salary)
+FROM Employee
+WHERE SALARY < (select max(salary from employee)
+
+SELF-JOIN Find all employees getting more pay than manager
+Select e.full_name
+From emp as e
+Join emp as m on e.manager_id = m.id
+Where e.salary > m.salary
+
+Create a histogram: name, age; uses floor function
+Select age, count(*) from table group by 1 order by 1
+But this has too many rows…instead group by age 0-10, 10-20,….
+
+Select floor(age/10)*10 as bin, count(*)
+From table group by 1 order by 1
+
+Find Nth Most Experienced Employee
+Full_name, job_title, yrs_exp
+
+With t1 as
+ (Select full_name, job_title, yrs_exp, dense_rank() over (partition by job_title order by yrs_exp DESC) as rank_exp
+FROM emp_info
+Group by 1,2,3)
+
+Select * 
+From t1
+Where rank_exp = 5
+
+
+Calculate 7 Day Moving Average sales
+Dates from Jan 1 to march 1, sale on each day
+
+Select date, sales, avg(sales) over (order by date rows between 6 preceding and current row)
+From sales
+Order by date
+
+
+FIRST_VALUE() AND LAST_VALUE()
+Name, dept, salary – find person getting lowest salary and highest salary
+
+SELECT name, dept, salary, highSalary_person(name) over (order by salary rows between current row and unbounded following)
+FROM employee
+
+SELECT name, dept, salary, highSalary_person(name) over (partition by dept order by salary rows between current row and unbounded following)
+FROM employee
+
+LEAD/LAG WINDOW FUNCTIONS
+Name, subject, score
+
+SELECT id, name, subject, score, lag(score) over (order by score)
+FROM tableS
+
+SELECT id, name, subject, score, lag(score) over (partition by subject order by score)
+FROM tableS
+
+SELECT id, name, subject, score, lead(score) over (order by score)
+FROM tableS
+
+SELECT id, name, subject, score, lead(score,2) over (order by score)
+FROM tableS
+
+
+SQL NTILE Window Function
+Select  first_name, subject, score, ntile(4) over (order by score desc)
+From table
+
+Select  first_name, subject, score, ntile(4) over (partition by subject desc)
+From table
+
+
+SQL Cumulative Sum
+Day, car_make, sales
+
+Select *, sum(sales) over (order by day) as cumulative_sum
+From sales_info
+
+Select *, sum(sales) over (partition by car_make order by day) as cumulative_sum
+From sales_info
+
+
+
+Select Top 10 Records for Each Category
+
+Dept,city,name,hourlyPay
+With top10 as 
+(select *, row_number() over (partition by dept order by hourly_pay desc as rn)
+From employee_data)
+
+Select * 
+From top10
+Where rn <= 10
+
+SQL: Top 10 customers for each day/week/month
+Customer_id, cust_name, pur_date, pur_amount, rn
+
+With t1 as
+(select *, row_number() over (partition by pur_date order by pur_amt) as rn
+From cust_table)
+
+Select * from t1
+Where rn <= 10
+
+-	For a month
+With t1 as
+(select *, row_number() over (partition by extract(month from pur_date) order by pur_amt) as rn
+From cust_table)
+
+-	For a week
+With t1 as
+(select *, row_number() over (partition by extract(week from pur_date) order by pur_amt) as rn
+From cust_table)
+
+
+3rd purchase of each user
+
+Use rownumber window function and select row_num = 3 orderby timestamp
+
+Highest sale for each day
+Table sale_data: Product_id, price, quantity, sale_date
+
+With t1 as
+(select sale_date, product_id, 
+Sum(price * quantity) as total,
+Dense_rank() over (partition by sale_date
+Order by sum(price*quantity) desc) as dr
+From sales_data sd
+Group by 1,2 )
+
+Select sale_date, product_id
+From t1
+Where dr =1 
