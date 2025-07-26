@@ -56,11 +56,11 @@ Items purchased before and after joining the loyalty program
 Points earned based on spending and bonus rules
 
 Key Concepts Used
-Joins (INNER JOIN) to combine tables
-Aggregate functions (SUM, COUNT)
-Window functions (ROW_NUMBER, RANK)
-CASE statements for conditional logic
-CTEs (WITH clauses) for query readability
+- Joins (INNER JOIN) to combine tables
+- Aggregate functions (SUM, COUNT)
+- Window functions (ROW_NUMBER, RANK)
+- CASE statements for conditional logic
+- CTEs (WITH clauses) for query readability
 
 How to Run
 Load the members, sales, and menu tables in any SQL database (e.g., PostgreSQL, MySQL, SQLite).
